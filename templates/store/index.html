@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+        <div class="row justify-content-center align-items-center">
+            <div class="col-md-6 my-3 p-3">
+                <form>
+                    {% csrf_token %}
+                    <label>Select your store type</label>
+                    <div class="input-group mb-3">
+                        <select class="form-control" name="store" id="store" required>
+                            <option></option>
+                            <option value="Burger King">Burger King</option>
+                            <option value="Pizza Hut">Pizza Hut</option>
+                            <option value="Star Bucks">Star Bucks</option>
+                            <option value="Verizon">Verizon</option>
+                        </select>
+                        <input type="submit" value="Search" class="btn btn-outline-primary">
+                    </div>
+                </form>
+            </div>    
+        </div>
+    </div>
+{% endblock  %}

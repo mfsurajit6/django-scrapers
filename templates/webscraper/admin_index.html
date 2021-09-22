@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+        <div class="row justify-content-center align-items-center">
+            <div class="col-md-6 my-3 p-3">
+                <h5 class="text-center">Admin Dashboard</h5>
+                <h6 class="text-center">Select Store to Insert / Update Store Details </h6>
+                <form>
+                    {% csrf_token %}
+                    <div class="input-group mb-3">
+                        <select class="form-control" name="store" id="store" required>
+                            <option></option>
+                            <option value="Burger King">Burger King</option>
+                            <option value="Pizza Hut">Pizza Hut</option>
+                            <option value="Star Bucks">Star Bucks</option>
+                            <option value="Verizon">Verizon</option>
+                        </select>
+                        <input type="submit" value="Fetch" class="btn btn-outline-primary">
+                    </div>
+                </form>
+            </div>    
+        </div>
+    </div>
+{% endblock  %}

@@ -1,0 +1,11 @@
+<nav class="navbar navbar-light bg-light border-bottom border-primary">
+  <div class="container-fluid">
+    <a class="navbar-brand"><h4>Store Finder</h4></a>
+    <div>
+        {% if user.is_authenticated %}
+            Hello, {{ request.user }}
+            <a href="{% url 'logout' %}">(logout)</a>
+        {% endif %}
+    </div>
+  </div>
+</nav>
