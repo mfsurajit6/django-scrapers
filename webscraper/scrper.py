@@ -4,9 +4,9 @@ import random
 import requests
 from bs4 import BeautifulSoup
 
-from config import LOG_LEVEL, LOG_FORMAT, LOG_DT_FORMAT
-from constant import ZIP_LAT_LANG, USER_AGENT
-from base_urls import BURGERKING_URL, PIZZAHUT_URL, STARBUCKS_URL, VERIZON_URL
+from webscraper.config import LOG_LEVEL, LOG_FORMAT, LOG_DT_FORMAT
+from webscraper.constant import ZIP_LAT_LANG, USER_AGENT
+from webscraper.base_urls import BURGERKING_URL, PIZZAHUT_URL, STARBUCKS_URL, VERIZON_URL
 
 
 class BurgerKing:
@@ -91,7 +91,6 @@ class BurgerKing:
         return local_stores
 
 
-
 class PizzaHut:
     """ Get PizzaHut outlet information form all over United States in dictionary format"""
 
@@ -108,6 +107,7 @@ class PizzaHut:
             "Accept-Language": "en-US,en;q=0.5",
             "Accept-Encoding": "gzip, deflate"
         }
+        logging.basicConfig(level=LOG_LEVEL, format=LOG_FORMAT, datefmt=LOG_DT_FORMAT)
 
     def get_stores(self):
         """
@@ -147,7 +147,8 @@ class PizzaHut:
         :return: None
         """
         store_id = 1
-        for outleturl in self.outlet_urls:
+        for i in range(0, len(self.outlet_urls), 20):
+            outleturl = self.outlet_urls[i]
             url = self.base_url + "/" + outleturl
             res = requests.get(url, headers=self.headers)
             soup = BeautifulSoup(res.content, 'html.parser')
@@ -158,11 +159,12 @@ class PizzaHut:
                 store_address_1 = outlet.find("span", {"class": "c-address-street-2"})
                 if store_address_1 is not None:
                     store_address += store_address_1.text
+                store_state = outlet.find("abbr", {"class": "c-address-state"})
                 store_phone = outlet.find("a", {"class": "c-phone-number-link c-phone-main-number-link"})
                 store['name'] = outlet.find("span", {"class": "LocationName-geo"}).text
                 store['address'] = store_address
                 store['city'] = outlet.find("span", {"class": "c-address-city"}).text
-                store['state'] = outlet.find("abbr", {"class": "c-address-state"}).text
+                store['state'] = store_state.text if store_state is not None else ""
                 store['zip'] = outlet.find("span", {"class": "c-address-postal-code"}).text
                 store['phone'] = store_phone.text if store_phone is not None else ''
                 self.stores[store_id] = store

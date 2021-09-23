@@ -1,13 +1,14 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
 <div class="container">
     <div class="row justify-content-center align-items-center">
         <div class="col-md-6 p-5 my-2">
-            <h3 class="text-center mb-3 border-bottom">Login</h3>
+            <h3 class="text-center mb-1 pb-3 border-bottom">Login</h3>
             <div>
                 <label class="text-danger">{{ error }}</label>
-                <form method="POST" action="{% url 'login' %}">
+                <form id="login_form" method="POST" action="{% url 'login' %}">
                     {% csrf_token %}
                         <div class="mb-3">
                             <label for="email">Email</label>
@@ -31,4 +32,8 @@
         </div>    
     </div>
 </div>
+{% endblock  %}
+
+{% block jsContent %}
+    <script src="{% static 'js/loginValidator.js'%}"></script>
 {% endblock  %}

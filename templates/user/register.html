@@ -1,12 +1,13 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
 <div class="container">
     <div class="row justify-content-center align-items-center">
         <div class="col-md-6 p-5 my-2">
-            <h3 class="text-center mb-3 p-2 border-bottom">Create Acount</h3>
+            <h3 class="text-center mb-2 pb-3 border-bottom">Create Acount</h3>
             <div>
-                <form method="POST" action="{% url 'register' %}">
+                <form id="reg_form" method="POST" action="{% url 'register' %}">
                     {% csrf_token %}
                         <div class="mb-3">
                             <label for="name">Name</label>
@@ -40,3 +41,7 @@
     </div>
 </div>
 {% endblock  %}
+
+{% block  jsContent %}
+        <script src="{% static 'js/regValidator.js'%}"></script>
+{% endblock %}
