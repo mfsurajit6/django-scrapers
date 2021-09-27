@@ -3,6 +3,7 @@ import logging
 import random
 import requests
 from bs4 import BeautifulSoup
+from celery import app, shared_task
 
 from webscraper.config import LOG_LEVEL, LOG_FORMAT, LOG_DT_FORMAT
 from webscraper.constant import ZIP_LAT_LANG, USER_AGENT
