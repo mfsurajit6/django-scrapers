@@ -4,6 +4,7 @@ from django.shortcuts import render
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
+from django.db.models import Q
 
 from store.tasks import send_mail
 from store.models import Store, StoreType
@@ -71,3 +72,22 @@ class SendEmail(View):
             }
         return render(request, 'store/index.html', context=context)
 
+class FilterView(View):
+    """Perform filteration of stores based on name or city or state for a specific type of store"""
+
+    def post(self,request):
+        store_type = request.POST.get('store_type')
+        search_key = request.POST.get('search_key')
+        
+        store_type_id = StoreType.objects.get(store_type=store_type)
+        stores = Store.objects.filter( Q(store_type=store_type_id)
+                                    & (Q(store_name__icontains=search_key) 
+                                    | Q(store_address__icontains=search_key) 
+                                    | Q(store_city__icontains=search_key) 
+                                    | Q(store_state__icontains=search_key)))
+        context = {
+            'stores': stores,
+            'store_type': store_type,
+            'search_key': search_key,
+        }
+        return render(request, 'store/index.html', context=context)

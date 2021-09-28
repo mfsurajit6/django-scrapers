@@ -13,4 +13,4 @@ def send_mail(email_id, file_path, store_type):
     )
     email.attach_file(file_path, 'text/csv')
     email.send(fail_silently=False)
-    return None
+    return 'Mail Sent'

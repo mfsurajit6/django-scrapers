@@ -31,7 +31,9 @@ def save_store_details(store_type):
     if len(stores) > 0:
         delete_and_save_store_data.delay(stores, store_type)
         create_csv.delay(stores, store_type)
-    return f'Data fetched for {store_type}'
+        return f'Data fetched for {store_type}'
+    else:
+        return f'No Data fetched for {store_type}'
 
 @shared_task
 def delete_and_save_store_data(stores, store_type):
@@ -85,3 +87,10 @@ def create_csv(stores, store_type):
     except IOError:
         logging.critical("File I/O Error")
     return f'{store_type} csv is created and saved'
+
+@shared_task(bind=True)
+def scheduled_scraper(self):
+    store_types = StoreType.objects.all()
+    for store_type in store_types:
+        save_store_details(store_type.store_type)
+        

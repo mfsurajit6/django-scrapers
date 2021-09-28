@@ -55,6 +55,15 @@
         <div class="row">
             <div class="col mb-5">
                 {% if stores %}
+                <div class="bg-light d-flex justify-content-between py-3">
+                    <h3>{{ store_type }} Stores</h3>
+                    <form action="{% url 'filter' %}" method="post" class="d-flex"> 
+                        {% csrf_token %}
+                        <input type="hidden" name="store_type" value="{{ store_type }}">
+                        <input type="text" name="search_key" value="{{ search_key }}" class="form-control" placeholder="Filter by name, address, city or state" required>
+                        <input type="submit" value="Filter" class="btn btn-primary ms-1">
+                    </form>
+                </div>
                 <table class="table table-striped">
                     <thead class="bg-primary">
                         <tr>
@@ -66,7 +75,6 @@
                             <th class="text-light">Zip</th>
                             <th class="text-light">Phone</th>
                             <th class="text-light">Location(lat, long)</th>
-                            <th class="text-light">Store Type</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -91,7 +99,6 @@
                                     -
                                     {% endif %}
                                 </td>
-                                <td>{{ store.store_type }}</td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -112,6 +119,8 @@
                         {% endif %}
                     {% endfor %}
                 </div>
+                {% elif not stores and store_type %}
+                <p class="text-danger"> Sorry No Store Found</p>
                 {% endif %}
             </div>
         </div>
