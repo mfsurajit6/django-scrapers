@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'store',
     'user',
     'webscraper',
+    'django_elasticsearch_dsl',
 ]
 
 MIDDLEWARE = [
@@ -118,8 +119,19 @@ CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND')
 CELERY_ACCEPT_CONTENT = [config('CELERY_ACCEPT_CONTENT')]
 CELERY_RESULT_SERIALIZER = config('CELERY_RESULT_SERIALIZER')
 CELERY_TASK_SERIALIZER = config('CELERY_TASK_SERIALIZER')
-CELERY_TIMEZONE = 'Asia/Kolkata'
-CELERY_RESULT_BACKEND='django-db'
-BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 3600}
+CELERY_TIMEZONE = config('CELERY_TIMEZONE')
+CELERY_RESULT_BACKEND=config('CELERY_RESULT_BACKEND')
+BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': config('CELERY_VISIBILTIY_TIMEOUT')}
+CELERY_ROUTES = {
+    'core.tasks.too_long_task': {'queue': 'email_queue'},
+    'core.tasks.quick_task': {'queue': 'scraper_queue'},
+}
+
 
 CELERY_BEAT_SCHEDULER='django_celery_beat.schedulers:DatabaseScheduler'
+
+ELASTICSEARCH_DSL={
+    'default': {
+        'hosts': config('ELASTICSEARCH_DSL_HOST')
+    },
+}

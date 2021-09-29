@@ -5,9 +5,11 @@ from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.db.models import Q
+from elasticsearch_dsl.query import Q as ESQ
 
 from store.tasks import send_mail
 from store.models import Store, StoreType
+from store.documents import StoreDocument
 
 
 class IndexView(LoginRequiredMixin, View):
@@ -78,13 +80,27 @@ class FilterView(View):
     def post(self,request):
         store_type = request.POST.get('store_type')
         search_key = request.POST.get('search_key')
-        
+        elasticsearch = request.POST.get('elasticsearch')
+
         store_type_id = StoreType.objects.get(store_type=store_type)
-        stores = Store.objects.filter( Q(store_type=store_type_id)
-                                    & (Q(store_name__icontains=search_key) 
-                                    | Q(store_address__icontains=search_key) 
-                                    | Q(store_city__icontains=search_key) 
-                                    | Q(store_state__icontains=search_key)))
+
+        stores=set()
+
+        if elasticsearch == 'on':
+            elastic_stores = StoreDocument.search().filter(ESQ('match_phrase', store_name=search_key)
+                                    | ESQ('match_phrase', store_address=search_key) 
+                                    | ESQ('match_phrase', store_city=search_key) 
+                                    | ESQ('match_phrase', store_state=search_key))[:10000]
+            for store in elastic_stores:
+                if(store.store_type.store_type == store_type):
+                    stores.add(store)
+        else:
+            stores = Store.objects.filter( Q(store_type=store_type_id) & (
+                                            Q(store_name__icontains=search_key) | 
+                                            Q(store_address__icontains=search_key) | 
+                                            Q(store_city__icontains=search_key) | 
+                                            Q(store_state__icontains=search_key)
+                                            ))
         context = {
             'stores': stores,
             'store_type': store_type,
