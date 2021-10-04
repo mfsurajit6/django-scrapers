@@ -5,11 +5,11 @@ from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.db.models import Q
-from elasticsearch_dsl.query import Q as ESQ
+from decouple import config
 
+from store.es_manager import EsManager
 from store.tasks import send_mail
 from store.models import Store, StoreType
-from store.documents import StoreDocument
 
 
 class IndexView(LoginRequiredMixin, View):
@@ -74,33 +74,55 @@ class SendEmail(View):
             }
         return render(request, 'store/index.html', context=context)
 
-class FilterView(View):
-    """Perform filteration of stores based on name or city or state for a specific type of store"""
 
-    def post(self,request):
+class FilterView(View):
+    """Perform filtration of stores based on name or city or state for a specific type of store"""
+
+    def post(self, request):
         store_type = request.POST.get('store_type')
         search_key = request.POST.get('search_key')
         elasticsearch = request.POST.get('elasticsearch')
 
         store_type_id = StoreType.objects.get(store_type=store_type)
 
-        stores=set()
+        stores = []
 
         if elasticsearch == 'on':
-            elastic_stores = StoreDocument.search().filter(ESQ('match_phrase', store_name=search_key)
-                                    | ESQ('match_phrase', store_address=search_key) 
-                                    | ESQ('match_phrase', store_city=search_key) 
-                                    | ESQ('match_phrase', store_state=search_key))[:10000]
-            for store in elastic_stores:
-                if(store.store_type.store_type == store_type):
-                    stores.add(store)
+            esmanager = EsManager()
+            query = {
+                "size": 10000,
+                "query": {
+                    "bool": {
+                        "must": [
+                            {
+                                "match": {"store_type": store_type}
+                            },
+                            {
+                                "bool": {
+                                    "should": [
+                                        {"match_phrase": {"store_name": search_key}},
+                                        {"match_phrase": {"store_city": search_key}},
+                                        {"match_phrase": {"store_state": search_key}},
+                                        {"match_phrase": {"store_address": search_key}},
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+            elastic_stores = esmanager.es_client.search(index=config('ELASTICSEARCH_INDEX'), body=query)
+
+            for store in elastic_stores['hits']['hits']:
+                # print(store['_source']['store_type'], store['_source']['store_name'])
+                stores.append(store['_source'])
         else:
-            stores = Store.objects.filter( Q(store_type=store_type_id) & (
-                                            Q(store_name__icontains=search_key) | 
-                                            Q(store_address__icontains=search_key) | 
-                                            Q(store_city__icontains=search_key) | 
-                                            Q(store_state__icontains=search_key)
-                                            ))
+            stores = Store.objects.filter(Q(store_type=store_type_id) & (
+                    Q(store_name__icontains=search_key) |
+                    Q(store_address__icontains=search_key) |
+                    Q(store_city__icontains=search_key) |
+                    Q(store_state__icontains=search_key)
+            ))
         context = {
             'stores': stores,
             'store_type': store_type,

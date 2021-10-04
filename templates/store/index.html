@@ -104,7 +104,13 @@
                                     -
                                     {% endif %}
                                 </td>
-                                <td>{{ store.store_type.store_type }}</td>
+                                <td>
+                                    {% if not store.store_type%}
+                                        {{ store.store_type.store_type }}
+                                    {% else %}
+                                        {{ store.store_type }}
+                                    {% endif %}
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>

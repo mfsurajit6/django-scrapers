@@ -3,7 +3,6 @@ import logging
 import random
 import requests
 from bs4 import BeautifulSoup
-from celery import app, shared_task
 
 from webscraper.config import LOG_LEVEL, LOG_FORMAT, LOG_DT_FORMAT
 from webscraper.constant import ZIP_LAT_LANG, USER_AGENT
@@ -12,6 +11,7 @@ from webscraper.base_urls import BURGERKING_URL, PIZZAHUT_URL, STARBUCKS_URL, VE
 
 class BurgerKing:
     """ Get BurgerKing outlet information form random locations of United States  in dictionary format"""
+
     def __init__(self):
         self.stores = {}
         self.url = BURGERKING_URL
@@ -66,7 +66,8 @@ class BurgerKing:
         self.variables["input"]["coordinates"]["userLat"] = lat
         self.variables["input"]["coordinates"]["userLng"] = long
         try:
-            response = requests.post(self.url, json={'query': self.query, 'variables': self.variables}, headers=self.headers)
+            response = requests.post(self.url, json={'query': self.query, 'variables': self.variables},
+                                     headers=self.headers)
             json_data = response.json()
             nodes = json_data.get("data").get("restaurants").get("nodes")
         except Exception as ex:
@@ -148,7 +149,7 @@ class PizzaHut:
         :return: None
         """
         store_id = 1
-        for i in range(0, len(self.outlet_urls), 20):
+        for i in range(0, len(self.outlet_urls), 10):  # minimises the hit
             outleturl = self.outlet_urls[i]
             url = self.base_url + "/" + outleturl
             res = requests.get(url, headers=self.headers)
@@ -170,7 +171,6 @@ class PizzaHut:
                 store['phone'] = store_phone.text if store_phone is not None else ''
                 self.stores[store_id] = store
                 store_id += 1
-
 
 
 class StarBucks:
@@ -243,9 +243,9 @@ class StarBucks:
         return stores_data
 
 
-
 class Verizon:
     """ Get Verizon outlet information form random locations of United States  in dictionary format"""
+
     def __init__(self):
         self.base_url = VERIZON_URL
         self.headers = {
@@ -307,4 +307,3 @@ class Verizon:
             if store_number not in stores_data:
                 stores_data[store_number] = store
         return stores_data
-
