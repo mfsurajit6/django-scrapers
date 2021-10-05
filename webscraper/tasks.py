@@ -19,7 +19,6 @@ def save_store_details(self, store_type):
     """
     stores = {}
     if store_type == 'Burger King':
-        pass
         burgerking = BurgerKing()
         stores = burgerking.get_stores()
     elif store_type == 'Pizza Hut':
