@@ -7,8 +7,8 @@ from store.models import Store, StoreType
 from webscraper.scrper import BurgerKing, PizzaHut, StarBucks, Verizon
 
 
-@shared_task
-def save_store_details(store_type):
+@shared_task(bind=True, queue='scraper_queue')
+def save_store_details(self, store_type):
     """
     Fetch the data for requested store type, save the data and create the CSV file
     :param store_type: str, type os store
@@ -35,8 +35,8 @@ def save_store_details(store_type):
     else:
         return f'No Data fetched for {store_type}'
 
-@shared_task
-def delete_and_save_store_data(stores, store_type):
+@shared_task(bind=True, queue='scraper_queue')
+def delete_and_save_store_data(self, stores, store_type):
     """
     Delete the existing data for specific store type and insert the new data
     :param stores: dict, store details for specific store type
@@ -65,8 +65,8 @@ def delete_and_save_store_data(stores, store_type):
     return f'{store_type} data saved to databse'
 
 
-@shared_task
-def create_csv(stores, store_type):
+@shared_task(bind=True, queue='scraper_queue')
+def create_csv(self, stores, store_type):
     """
     Create CSV file for specific store type and store it into media directory
     :param stores: dict, store details for specific store type
