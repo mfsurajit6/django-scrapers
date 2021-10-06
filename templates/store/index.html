@@ -4,21 +4,95 @@
     <div class="container">
         <div class="row justify-content-center align-items-center">
             <div class="col-md-6 my-3 p-3">
-                <form>
+                <form action="{% url 'index' %}" method="POST">
                     {% csrf_token %}
                     <label>Select your store type</label>
-                    <div class="input-group mb-3">
-                        <select class="form-control" name="store" id="store" required>
-                            <option></option>
-                            <option value="Burger King">Burger King</option>
-                            <option value="Pizza Hut">Pizza Hut</option>
-                            <option value="Star Bucks">Star Bucks</option>
-                            <option value="Verizon">Verizon</option>
-                        </select>
-                        <input type="submit" value="Search" class="btn btn-outline-primary">
+                    <div class="row">
+                        <div class="col-md-9">
+                            <select class="form-select" name="store" id="store" required>
+                                <option></option>
+                                <option value="Burger King"
+                                    {% if store_type == "Burger King" %}
+                                            selected
+                                    {% endif%}
+                                >Burger King</option>
+                                <option value="Pizza Hut"
+                                {% if store_type == "Pizza Hut" %}
+                                    selected
+                                {% endif%}
+                                >Pizza Hut</option>
+                                <option value="Starbucks"
+                                {% if store_type == "Starbucks" %}
+                                    selected
+                                {% endif%}
+                                >Starbucks</option>
+                                <option value="Verizon"
+                                {% if store_type == "Verizon" %}
+                                    selected
+                                {% endif%}
+                                >Verizon</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="submit" value="Search" class="btn btn-primary">
+                        </div>
                     </div>
                 </form>
             </div>    
+        </div>
+        <div class="row">
+            <div class="col mb-5">
+                {% if stores %}
+                <table class="table table-striped">
+                    <thead class="bg-primary">
+                        <tr>
+                            <th class="text-light">#</th>
+                            <th class="text-light">Store Name</th>
+                            <th class="text-light">Address</th>
+                            <th class="text-light">City</th>
+                            <th class="text-light">State</th>
+                            <th class="text-light">Zip</th>
+                            <th class="text-light">Phone</th>
+                            <th class="text-light">Location(lat, long)</th>
+                            <th class="text-light">Store Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for store in stores %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ store.store_name }}</td>
+                                <td>{{ store.store_address }}</td>
+                                <td>{{ store.store_city }}</td>
+                                <td>{{ store.store_state }}</td>
+                                <td>{{ store.store_zip }}</td>
+                                <td>{{ store.store_phone }}</td>
+                                <td class="text-center">
+                                    {% if store.store_latitude %}
+                                        {{ store.store_latitude | floatformat:4  }}, {{ store.store_longitude | floatformat:4 }}
+                                    {% else %}
+                                    -
+                                    {% endif %}
+                                </td>
+                                <td>{{ store.store_type }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div class="text-center">
+                    <a href="" class="btn btn-primary text-center my-3">Send Mail</a>
+                </div>
+                <div>
+                    {% for i in stores.paginator.page_range %}
+                        {% if stores.number == i %}
+                            <a>{{ i }}</a>
+                        {% else %}
+                            <a href="?st={{store_type}}&page={{i}}">{{ i }}</a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
         </div>
     </div>
 {% endblock  %}
