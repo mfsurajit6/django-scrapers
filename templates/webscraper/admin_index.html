@@ -26,8 +26,10 @@
                 <div
                     {% if status == 'success' %}
                         class="text-success"
-                    {% else %}
+                    {% elif status == 'error' %}
                         class="text-danger"
+                    {% else %}
+                        class="text-info"
                     {% endif %}
                 >
                     {% if msg %}
