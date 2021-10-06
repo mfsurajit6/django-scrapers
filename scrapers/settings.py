@@ -20,6 +20,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'bootstrap5',
     'mathfilters',
+    'django_celery_results',
+    'django_celery_beat',
     'store',
     'user',
     'webscraper',
@@ -116,3 +118,8 @@ CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND')
 CELERY_ACCEPT_CONTENT = [config('CELERY_ACCEPT_CONTENT')]
 CELERY_RESULT_SERIALIZER = config('CELERY_RESULT_SERIALIZER')
 CELERY_TASK_SERIALIZER = config('CELERY_TASK_SERIALIZER')
+CELERY_TIMEZONE = 'Asia/Kolkata'
+CELERY_RESULT_BACKEND='django-db'
+BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 3600}
+
+CELERY_BEAT_SCHEDULER='django_celery_beat.schedulers:DatabaseScheduler'
