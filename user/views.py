@@ -1,5 +1,3 @@
-from django.contrib.auth.forms import UsernameField
-from django.db.models.fields import EmailField
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.views import View
@@ -32,6 +30,7 @@ class RegistrationView(View):
 class CustomLoginView(LoginView):
     """Login User"""
     redirect_authenticated_user = 'index'
+
     def get(self, request):
         """Render Login page for user on GET request"""
         return render(request, 'user/login.html')

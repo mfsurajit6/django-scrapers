@@ -26,7 +26,10 @@
                         </div>
                         <input type="submit" value="Login" class="btn btn-primary form-control">
                     </form>
-                    <label class="d-block text-center mt-4">Don't have an Account? <a href="{% url 'register' %}">Register</a></label>
+                <div class="d-flex justify-content-between">
+                    <label class="d-block mt-4">Don't have an Account? <a href="{% url 'register' %}">Register</a></label>
+                    <label class="d-block mt-4"> <a href="{% url 'reset_password' %}">Forget Password?</a></label>
+                </div>
                 </form>
             </div>
         </div>    
