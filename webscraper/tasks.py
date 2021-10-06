@@ -2,9 +2,12 @@ import logging
 import csv
 from celery import shared_task
 from django.conf import settings
+from datetime import datetime
+from elasticsearch import Elasticsearch, helpers
 
 from store.models import Store, StoreType
 from webscraper.scrper import BurgerKing, PizzaHut, StarBucks, Verizon
+from store.es_manager import EsManager
 
 
 @shared_task(bind=True, queue='scraper_queue')
@@ -16,6 +19,7 @@ def save_store_details(self, store_type):
     """
     stores = {}
     if store_type == 'Burger King':
+        pass
         burgerking = BurgerKing()
         stores = burgerking.get_stores()
     elif store_type == 'Pizza Hut':
@@ -31,9 +35,11 @@ def save_store_details(self, store_type):
     if len(stores) > 0:
         delete_and_save_store_data.delay(stores, store_type)
         create_csv.delay(stores, store_type)
+        index_data(stores, store_type)
         return f'Data fetched for {store_type}'
     else:
         return f'No Data fetched for {store_type}'
+
 
 @shared_task(bind=True, queue='scraper_queue')
 def delete_and_save_store_data(self, stores, store_type):
@@ -62,7 +68,7 @@ def delete_and_save_store_data(self, stores, store_type):
         store_data.append(s)
     Store.objects.filter(store_type=store_type).delete()
     Store.objects.bulk_create(store_data, len(store_data))
-    return f'{store_type} data saved to databse'
+    return f'{store_type} data saved to database'
 
 
 @shared_task(bind=True, queue='scraper_queue')
@@ -87,6 +93,35 @@ def create_csv(self, stores, store_type):
     except IOError:
         logging.critical("File I/O Error")
     return f'{store_type} csv is created and saved'
+
+
+@shared_task(bind=True, queue='scraper_queue')
+def index_data(self, stores, store_type):
+    """
+    Index the store data to elastic search server
+    :param stores: dict, store details for specific store type
+    :param store_type: str, Store Type
+    :return : str, success message
+    """
+    esmanager = EsManager()
+    esmanager.create_index()
+    esmanager.delete_data(store_type=store_type)
+
+    for store in stores.values():
+        store_data = {}
+        store_data['store_type'] = store_type
+        store_data['store_name'] = store.get('name')
+        store_data['store_city'] = store.get('city')
+        store_data['store_state'] = store.get('state')
+        store_data['store_address'] = store.get('address')
+        store_data['store_zip'] = store.get('zip')
+        store_data['store_phone'] = store.get('phone')
+        store_data['store_latitude'] = store.get('latitude')
+        store_data['store_longitude'] = store.get('longitude')
+        store_data['created_at'] = datetime.now()
+        esmanager.populate_index(data=store_data)
+    return 'ES Index Created'
+
 
 @shared_task(bind=True)
 def scheduled_scraper(self):
