@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% load mathfilters %}
 
 {% block content %}
@@ -91,7 +92,17 @@
                                 {% else %}
                                     <td>{{ forloop.counter }}</td>
                                 {% endif %}
-                                <td>{{ store.store_name }}</td>
+                                <td>
+                                    {% if store.store_latitude %}
+                                        <a href="#map" onclick="addMarker({{store.store_latitude}}, {{ store.store_longitude }}, '{{ store.store_address }}' )">
+                                            {{ store.store_name }}
+                                        </a>
+                                    {% else %}
+                                        <a href="#map" onclick="addMarker(0, 0, '{{ store.store_address }}' )">
+                                            {{ store.store_name }}
+                                        </a>
+                                    {% endif %}
+                                </td>
                                 <td>{{ store.store_address }}</td>
                                 <td>{{ store.store_city }}</td>
                                 <td>{{ store.store_state }}</td>
@@ -136,5 +147,19 @@
                 {% endif %}
             </div>
         </div>
+        <div class="row">
+            <div class="col mb-5">
+                {% if stores %}
+                    <div id="map" style="height: 500px; width: 100%;"></div>
+                {% endif %}
+            </div>
+        </div>
+
     </div>
 {% endblock  %}
+
+{% block  jsContent %}
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="{% static 'js/map-display.js'%}"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBDxgIyZ3quG2Td6ZTr7SwcMkoj1MnDAQ4&callback=initMap"></script>
+{% endblock %}
