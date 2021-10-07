@@ -149,7 +149,7 @@ class PizzaHut:
         :return: None
         """
         store_id = 1
-        for i in range(0, len(self.outlet_urls), 10):  # minimises the hit
+        for i in range(0, len(self.outlet_urls), 20):  # minimises the hit
             outleturl = self.outlet_urls[i]
             url = self.base_url + "/" + outleturl
             res = requests.get(url, headers=self.headers)

@@ -10,7 +10,7 @@ from webscraper.scrper import BurgerKing, PizzaHut, StarBucks, Verizon
 from store.es_manager import EsManager
 
 
-@shared_task(bind=True, queue='scraper_queue')
+@shared_task(bind=True)
 def save_store_details(self, store_type):
     """
     Fetch the data for requested store type, save the data and create the CSV file
@@ -40,7 +40,7 @@ def save_store_details(self, store_type):
         return f'No Data fetched for {store_type}'
 
 
-@shared_task(bind=True, queue='scraper_queue')
+@shared_task(bind=True)
 def delete_and_save_store_data(self, stores, store_type):
     """
     Delete the existing data for specific store type and insert the new data
@@ -70,7 +70,7 @@ def delete_and_save_store_data(self, stores, store_type):
     return f'{store_type} data saved to database'
 
 
-@shared_task(bind=True, queue='scraper_queue')
+@shared_task(bind=True)
 def create_csv(self, stores, store_type):
     """
     Create CSV file for specific store type and store it into media directory
@@ -94,7 +94,7 @@ def create_csv(self, stores, store_type):
     return f'{store_type} csv is created and saved'
 
 
-@shared_task(bind=True, queue='scraper_queue')
+@shared_task(bind=True)
 def index_data(self, stores, store_type):
     """
     Index the store data to elastic search server

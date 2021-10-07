@@ -16,7 +16,7 @@ app.conf.update(timezone='Asia/Kolkata')
 app.conf.beat_schedule = {
     'scrap_data_everyday_at_12':{
         'task': 'webscraper.tasks.scheduled_scraper',
-        'schedule':crontab(hour=2),
+        'schedule': crontab(hour=2),
     }
 }
 
