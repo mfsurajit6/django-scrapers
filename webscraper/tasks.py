@@ -34,7 +34,7 @@ def save_store_details(self, store_type):
     if len(stores) > 0:
         delete_and_save_store_data.delay(stores, store_type)
         create_csv.delay(stores, store_type)
-        index_data(stores, store_type)
+        # index_data(stores, store_type)
         return f'Data fetched for {store_type}'
     else:
         return f'No Data fetched for {store_type}'

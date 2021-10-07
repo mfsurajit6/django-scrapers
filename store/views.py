@@ -88,6 +88,7 @@ class FilterView(View):
         stores = []
 
         if elasticsearch == 'on':
+            pass
             esmanager = EsManager()
             query = {
                 "size": 10000,
