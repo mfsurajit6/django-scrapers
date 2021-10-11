@@ -3,7 +3,7 @@ from decouple import config
 from celery import shared_task
 
 
-@shared_task(bind=True)
+@shared_task(bind=True, queue='email_queue')
 def send_mail(self, email_id, file_path, store_type):
     email = EmailMessage(
         subject=f'{store_type} data from Store Finder',
